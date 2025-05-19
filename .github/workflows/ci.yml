@@ -1,1 +1,21 @@
+name: CI - Snapshot
+run-name: CI snapshot disparada por ${{ github.actor }}
 
+on:   
+  # inicia o workflow manualmente
+  workflow_dispatch:
+jobs:  
+  snapshot: #qualquer nome
+    runs-on: ubuntu-latest # inicia em uma maquina ubuntu
+    steps:
+      - name: Baixando o repositório
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}
+          path: build
+      - name: Exibe conteúda da pasta
+        shell: bash
+        run: |
+          cd build
+          ls 
+          ls ci_cd_projet
