@@ -14,12 +14,11 @@ jobs:
         with:
           repository: ${{ github.repository }}
           path: build
-      - name: Compila o(s) projeto(s)
-        shell: bash
-        run: |
-          cd build/ci_cd_projeto/backend
-          npm install
-          npm run build
+      - name: Upload Zip Backend
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend
+          path: build/ci_cd_projeto/backend/dist
 
   build_front:
     name: Build Front
@@ -30,12 +29,11 @@ jobs:
         with:
           repository: ${{ github.repository }}
           path: build
-      - name: Compila o(s) projeto(s)
-        shell: bash
-        run: |
-          cd build/ci_cd_projeto/frontend
-          npm install
-          npm run build
+      - name: Upload Zip Frontend
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend
+          path: build/ci_cd_projeto/frontend/dist
 
   empacotar:
       name: Empacotar
