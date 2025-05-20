@@ -17,7 +17,7 @@ jobs:
       - name: Compacta(Zip) buid
         shell: bash
         run: |
-          cd ci_cd_projeto/backend
+          cd build/ci_cd_projeto/backend
           zip -r backend.zip dist
       - name: Upload Zip Backend
         uses: actions/upload-artifact@v4
@@ -37,7 +37,7 @@ jobs:
       - name: Compacta(Zip) buid
         shell: bash
         run: |
-          cd ci_cd_projeto/frontend
+          cd build/ci_cd_projeto/frontend
           zip -r frontend.zip dist
       - name: Upload Zip Frontend
         uses: actions/upload-artifact@v4
