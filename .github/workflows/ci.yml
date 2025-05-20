@@ -14,6 +14,11 @@ jobs:
         with:
           repository: ${{ github.repository }}
           path: build
+      - name: Compacta(Zip) buid
+        shell: bash
+        run: |
+          cd build/ci_cd_projeto/backend
+          zip -r backend.zip dist
       - name: Upload Zip Backend
         uses: actions/upload-artifact@v4
         with:
@@ -29,6 +34,11 @@ jobs:
         with:
           repository: ${{ github.repository }}
           path: build
+      - name: Compacta(Zip) buid
+        shell: bash
+        run: |
+            cd build/ci_cd_projeto/frontend
+            zip -r frontend.zip dist
       - name: Upload Zip Frontend
         uses: actions/upload-artifact@v4
         with:
