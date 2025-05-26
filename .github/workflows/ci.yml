@@ -4,7 +4,62 @@ run-name: CI snapshot disparada por ${{ github.actor }}
 on:   
   # inicia o workflow manualmente
   workflow_dispatch:
-jobs:  
+    inputs:
+      tipo_versao:
+        type: choice
+        description: 'Tipo de build'     
+        required: true
+        default: 'minor'
+        options:
+        - patch
+        - minor
+        - major
+
+jobs:
+  GerarVersao:
+    runs-on: ubuntu-latest
+    outputs:
+      versao: ${{ steps.versao.outputs.versao }}
+    steps:
+      - name: Baixando o repositório
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Coleta última versão
+        id: ultimatag
+        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+        with:
+          fallback: 1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Número próximas versões
+        id: versoes
+        uses: "WyriHaximus/github-action-next-semvers@v1"
+        with:
+          version: ${{ steps.ultimatag.outputs.tag }}
+      - name: Versão
+        id: versao
+        shell: sh
+        run: |
+          versao=$(
+            case "${{ inputs.tipo_versao }}" in
+              ("patch") echo "${{ steps.versoes.outputs.patch }}" ;;
+              ("minor") echo "${{ steps.versoes.outputs.minor }}" ;;
+              ("major") echo "${{ steps.versoes.outputs.major }}" ;;
+              ("replace_last") echo "${{ steps.ultimatag.outputs.tag }}" ;;
+              ("snapshot") echo "${{ steps.versoes.outputs.minor }}.${{ github.ref_name }}.snapshot" ;;
+              (*) echo "${{ steps.versoes.outputs.minor }}.snapshot" ;;
+            esac)
+          echo "--- Versões ---"
+          echo "snapshot=${{ steps.versoes.outputs.minor }}.snapshot"
+          echo "patch=${{ steps.versoes.outputs.patch }}"
+          echo "minor=${{ steps.versoes.outputs.minor }}"
+          echo "major=${{ steps.versoes.outputs.major }}"
+          echo "replace_last=${{ steps.ultimatag.outputs.tag }}"
+          echo "--- Versão escolhida ---"
+          echo "versao=${versao}"
+          echo "versao=${versao}" >> "$GITHUB_OUTPUT"
+
   build_back:
     name: Build Back
     runs-on: ubuntu-latest
@@ -14,6 +69,12 @@ jobs:
         with:
           repository: ${{ github.repository }}
           path: build
+      - name: Compila o(s) projeto(s)
+        shell: bash
+        run: |
+          cd build/ci_cd_projeto/backend
+          npm install
+          npm run build
       - name: Compacta(Zip) buid
         shell: bash
         run: |
@@ -34,6 +95,12 @@ jobs:
         with:
           repository: ${{ github.repository }}
           path: build
+      - name: Compila o(s) projeto(s)
+        shell: bash
+        run: |
+          cd build/ci_cd_projeto/frontend
+          npm install
+          npm run build
       - name: Compacta(Zip) buid
         shell: bash
         run: |
@@ -46,24 +113,25 @@ jobs:
           path: build/ci_cd_projeto/frontend/frontend.zip
 
   empacotar:
-      name: Empacotar
-      needs: [build_back, build_front]
-      runs-on: ubuntu-latest
-      steps:
-      - name: Download Zip Frontend
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend
-      - name: Download Zip Backend
-        uses: actions/download-artifact@v4
-        with:
-          name: backend
-      - name: Criar Versão / Release e Tag
-        uses: softprops/action-gh-release@v2 #não é recomendado usar a versão mais recente, pois pode quebrar o código
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          body: Release
-          tag_name: Release
-          fail_on_unmatched_files: false
-          files: backend.zip,frontend.zip
+    name: Empacotar
+    needs: [build_back, build_front]
+    runs-on: ubuntu-latest
+    steps:
+     - name: Download Zip Frontend
+       uses: actions/download-artifact@v4
+       with:
+         name: frontend
+     - name: Download Zip Backend
+       uses: actions/download-artifact@v4
+       with:
+         name: backend
+     - name: Criar Versão / Release e Tag
+       uses: softprops/action-gh-release@v2
+       env:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+       with:
+         body: Release
+         tag_name: Release
+         fail_on_unmatched_files: true
+         files: backend.zip,frontend.zip
+
