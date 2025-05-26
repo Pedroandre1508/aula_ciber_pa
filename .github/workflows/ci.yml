@@ -62,6 +62,7 @@ jobs:
 
   build_back:
     name: Build Back
+    needs: GerarVersao
     runs-on: ubuntu-latest
     steps:
       - name: Baixando o repositório
@@ -75,7 +76,7 @@ jobs:
           cd build/ci_cd_projeto/backend
           npm install
           npm run build
-      - name: Compacta(Zip) buid
+      - name: Compacta(Zip) build
         shell: bash
         run: |
           cd build/ci_cd_projeto/backend
@@ -88,6 +89,7 @@ jobs:
 
   build_front:
     name: Build Front
+    needs: GerarVersao
     runs-on: ubuntu-latest
     steps:
       - name: Baixando o repositório
@@ -101,7 +103,7 @@ jobs:
           cd build/ci_cd_projeto/frontend
           npm install
           npm run build
-      - name: Compacta(Zip) buid
+      - name: Compacta(Zip) build
         shell: bash
         run: |
           cd build/ci_cd_projeto/frontend
