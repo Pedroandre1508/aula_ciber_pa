@@ -36,7 +36,7 @@ jobs:
         id: versoes
         uses: "WyriHaximus/github-action-next-semvers@v1"
         with:
-          version: ${{ steps.ultimatag.outputs.tag }}
+          version: ${{ steps.ultimatag.outputs.tag || '1.0.0' }}
       - name: Versão
         id: versao
         shell: sh
