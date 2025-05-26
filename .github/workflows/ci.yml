@@ -36,7 +36,7 @@ jobs:
         id: versoes
         uses: "WyriHaximus/github-action-next-semvers@v1"
         with:
-          version: ${{ steps.ultimatag.outputs.tag || '1.0.0' }}
+          version: ${{ steps.ultimatag.outputs.tag }}
       - name: Versão
         id: versao
         shell: sh
@@ -62,7 +62,7 @@ jobs:
 
   build_back:
     name: Build Back
-    needs: GerarVersao
+    needs: [GerarVersao]
     runs-on: ubuntu-latest
     steps:
       - name: Baixando o repositório
@@ -76,7 +76,7 @@ jobs:
           cd build/ci_cd_projeto/backend
           npm install
           npm run build
-      - name: Compacta(Zip) build
+      - name: Compacta(Zip) buid
         shell: bash
         run: |
           cd build/ci_cd_projeto/backend
@@ -86,10 +86,27 @@ jobs:
         with:
           name: backend
           path: build/ci_cd_projeto/backend/backend.zip
+  
+  teste_back:
+    name: Teste
+    needs: [build_back]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixando o repositório
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}
+          path: build
+      - name: Executar os testes automatizados
+        shell: bash
+        run: |
+          cd build/ci_cd_projeto/backend
+          npm install
+          npm run test:cov
 
   build_front:
     name: Build Front
-    needs: GerarVersao
+    needs: [GerarVersao]
     runs-on: ubuntu-latest
     steps:
       - name: Baixando o repositório
@@ -103,7 +120,7 @@ jobs:
           cd build/ci_cd_projeto/frontend
           npm install
           npm run build
-      - name: Compacta(Zip) build
+      - name: Compacta(Zip) buid
         shell: bash
         run: |
           cd build/ci_cd_projeto/frontend
@@ -116,7 +133,7 @@ jobs:
 
   empacotar:
     name: Empacotar
-    needs: [build_back, build_front]
+    needs: [teste_back, build_front, GerarVersao]
     runs-on: ubuntu-latest
     steps:
      - name: Download Zip Frontend
@@ -136,4 +153,3 @@ jobs:
          tag_name: ${{ needs.GerarVersao.outputs.versao }}
          fail_on_unmatched_files: true
          files: backend.zip, frontend.zip
-
