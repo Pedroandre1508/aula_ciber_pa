@@ -23,14 +23,14 @@ jobs:
       - name: Download Backend
         uses: dsaltares/fetch-gh-release-asset@master
         with:
-#          repo: 'Pedroandre1508/aula_ciber_pa'
+          repo: 'Pedroandre1508/aula_ciber_pa'
           version: "tags/${{ github.event.inputs.releasetag }}"
           file: 'backend.zip'
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Download Frontend
         uses: dsaltares/fetch-gh-release-asset@master
         with:
-#          repo: 'Pedroandre1508/aula_ciber_pa'
+          repo: 'Pedroandre1508/aula_ciber_pa'
           version: "tags/${{ github.event.inputs.releasetag }}"
           file: 'frontend.zip'
           token: ${{ secrets.GITHUB_TOKEN }}
